@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Christmas & New Year Countdown</title>
+<style>
+  body {
+    background-color: black;
+    color: #00ff00;
+    font-family: 'Courier New', monospace;
+    text-align: center;
+    overflow: hidden;
+    height: 100vh;
+    margin: 0;
+  }
+
+  h1 {
+    margin-top: 40px;
+    text-shadow: 0 0 15px #00ff00;
+    transition: text-shadow 0.3s ease;
+  }
+
+  .countdown-box {
+    display: inline-block;
+    padding: 20px 40px;
+    margin: 20px auto;
+    border: 2px solid #00ff00;
+    border-radius: 20px;
+    box-shadow: 0 0 15px #00ff00, inset 0 0 10px #00ff00;
+    animation: neonPulse 3s infinite alternate;
+    background: rgba(0, 255, 0, 0.05);
+  }
+
+  .countdown {
+    font-size: 2em;
+    text-shadow: 0 0 15px #00ff00;
+    transition: text-shadow 0.3s ease, color 0.3s ease;
+  }
+
+  /* Blinking Neon Effect */
+  .blink {
+    text-shadow: 0 0 25px #00ff00, 0 0 50px #00ff00;
+    color: #00ff99;
+  }
+
+  /* Neon Border Pulse Animation */
+  @keyframes neonPulse {
+    0% {
+      box-shadow: 0 0 10px #00ff00, inset 0 0 5px #00ff00;
+    }
+    100% {
+      box-shadow: 0 0 30px #00ff00, inset 0 0 20px #00ff00;
+    }
+  }
+
+  canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<canvas id="snow"></canvas>
+
+<h1>🎄 Christmas Countdown 🎄</h1>
+<div class="countdown-box">
+  <div class="countdown" id="christmas"></div>
+</div>
+
+<h1>🎆 New Year Countdown 🎆</h1>
+<div class="countdown-box">
+  <div class="countdown" id="newyear"></div>
+</div>
+
+<script>
+  // Countdown Logic
+  function updateCountdowns() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+
+    const christmas = new Date(currentYear, 11, 25); // December 25
+    const newYear = new Date(currentYear + 1, 0, 1); // January 1 next year
+
+    if (now > christmas) christmas.setFullYear(currentYear + 1);
+
+    const christmasDiff = christmas - now;
+    const newYearDiff = newYear - now;
+
+    const christmasEl = document.getElementById('christmas');
+    const newyearEl = document.getElementById('newyear');
+
+    christmasEl.textContent = formatTime(christmasDiff);
+    newyearEl.textContent = formatTime(newYearDiff);
+
+    // Neon Blink Animation
+    blinkEffect(christmasEl);
+    blinkEffect(newyearEl);
+  }
+
+  function formatTime(ms) {
+    const totalSeconds = Math.floor(ms / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  function blinkEffect(element) {
+    element.classList.add('blink');
+    setTimeout(() => {
+      element.classList.remove('blink');
+    }, 400);
+  }
+
+  setInterval(updateCountdowns, 1000);
+  updateCountdowns();
+
+  // Neon Snow Effect
+  const canvas = document.getElementById('snow');
+  const ctx = canvas.getContext('2d');
+  let snowflakes = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  function createSnowflakes() {
+    const count = 150;
+    snowflakes = [];
+    for (let i = 0; i < count; i++) {
+      snowflakes.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 3 + 1,
+        d: Math.random() + 0.5,
+      });
+    }
+  }
+
+  function drawSnowflakes() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = "white";
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    for (let i = 0; i < snowflakes.length; i++) {
+      const f = snowflakes[i];
+      ctx.moveTo(f.x, f.y);
+      ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2, true);
+    }
+    ctx.fill();
+    moveSnowflakes();
+  }
+
+  let angle = 0;
+  function moveSnowflakes() {
+    angle += 0.01;
+    for (let i = 0; i < snowflakes.length; i++) {
+      const f = snowflakes[i];
+      f.y += Math.pow(f.d, 2) + 1;
+      f.x += Math.sin(angle) * 2;
+
+      if (f.y > canvas.height) {
+        snowflakes[i] = {
+          x: Math.random() * canvas.width,
+          y: 0,
+          r: f.r,
+          d: f.d,
+        };
+      }
+    }
+  }
+
+  function updateSnow() {
+    drawSnowflakes();
+    requestAnimationFrame(updateSnow);
+  }
+
+  createSnowflakes();
+  updateSnow();
+</script>
+
+</body>
+</html>
